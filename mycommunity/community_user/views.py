@@ -1,10 +1,8 @@
-import json
-
-from django.core import serializers
-from django.http import HttpResponse
-from django.shortcuts import render
+from django.contrib.auth.hashers import make_password, check_password
+from django.shortcuts import render, redirect
 
 # Create your views here.
+from .forms import LoginForm
 from .models import CommunityUser
 
 
@@ -13,20 +11,48 @@ def signup(request):
         return render(request, 'signup.html')
     elif request.method == 'POST':
         user_name = request.POST['userName']
-        user_password = request.POST['password']
-        community_user = CommunityUser(user_name=user_name, user_password=user_password)
-        community_user.save()
+        user_password = request.POST['userPassword']
+        user_password_check = request.POST['passwordCheck']
+        user_email = request.POST['userEmail']
 
-        response_obj = {'resp_msg': '회원가입, 성공적', 'resp_code': 0}
+        # Validation
+        response_data = {}
+        if not (user_name and user_password and user_password_check and user_email):
+            response_data['error_message'] = '모든 정보를 입력하세요.'
+        if user_password != user_password_check:
+            response_data['error_message'] = '비밀번호가 일치하지 않습니다.'
+        else:
+            # encryption
+            encrypted_password = make_password(user_password)
+            community_user = CommunityUser(user_name=user_name, user_password=encrypted_password, user_email=user_email)
+            community_user.save()
+            response_data['register_success_message'] = '회원가입이 완료되었습니다.'
+        return render(request, 'signup.html', response_data)
 
-        return render(request, 'signup.html', response_obj)
+
+def login(request):
+    login_form = None
+    if request.method == 'POST':
+        login_form = LoginForm(request.POST)
+        if login_form.is_valid():
+            user_id = login_form.user_id
+            request.session['user_id'] = user_id
+            return redirect('/')
+    else:
+        login_form = LoginForm()
+    return render(request, 'login.html', {'login_form': login_form})
 
 
-def restapi_test(request):
-    if request.method == 'GET':
-        sample_json_dict = {'hello': "world", 'ga': 'zua!!'}
-        sample_json = json.dumps(sample_json_dict)
-        return HttpResponse(sample_json, content_type="application/json")
+def logout(request):
+    if request.session.get('user_id'):
+        del (request.session['user_id'])  # remove Key & Value in dict
+    return redirect('/')
 
 
-
+def home(request):
+    if 'user_id' in request.session:  # request.session dictionary > Key Check
+        user_id = request.session['user_id']
+        user_vo = CommunityUser.objects.get(pk=user_id)
+        return render(request, 'board.html', {'user_name': user_vo.user_name})
+    else:
+        return render(request, 'board.html')

@@ -1,0 +1,39 @@
+{% extends "base_page.html" %}
+
+{% block contents_area %}
+<div class="row mt-3">
+    <div class="col-md-12 text-center">
+        <h2 id="sample_target">Board Page</h2>
+        {% if user_name %}
+        <h5>{{ user_name }}</h5>
+        {% endif %}
+    </div>
+
+    <div class="col-md-12">
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>id</th>
+                    <th>author</th>
+                    <th>subject</th>
+                    <th>created time</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for board_data in board_data_list %}
+                <tr>
+                    <th>{{ board_data.id }}</th>
+                    <td>{{ board_data.author }}</td>
+                    <td>{{ board_data.subject }}</td>
+                    <td>{{ board_data.created_time }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    <div class="col-md-12">
+        <button class="btn btn-primary">글쓰기</button>
+    </div>
+</div>
+{% endblock %}
+
