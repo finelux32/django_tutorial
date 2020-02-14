@@ -6,6 +6,26 @@ from .forms import LoginForm
 from .models import CommunityUser
 
 
+def login(request):
+    login_form = None
+    if request.method == 'POST':
+        login_form = LoginForm(request.POST)
+        if login_form.is_valid():
+            user_id = login_form.user_id
+            request.session['user_id'] = user_id
+            print('!!! = ', request.session['user_id'])
+            return redirect('/')
+    else:
+        login_form = LoginForm()
+    return render(request, 'login.html', {'login_form': login_form})
+
+
+def logout(request):
+    if request.session.get('user_id'):
+        del (request.session['user_id'])  # remove Key & Value in dict
+    return redirect('/')
+
+
 def signup(request):
     if request.method == 'GET':
         return render(request, 'signup.html')
@@ -28,31 +48,3 @@ def signup(request):
             community_user.save()
             response_data['register_success_message'] = '회원가입이 완료되었습니다.'
         return render(request, 'signup.html', response_data)
-
-
-def login(request):
-    login_form = None
-    if request.method == 'POST':
-        login_form = LoginForm(request.POST)
-        if login_form.is_valid():
-            user_id = login_form.user_id
-            request.session['user_id'] = user_id
-            return redirect('/')
-    else:
-        login_form = LoginForm()
-    return render(request, 'login.html', {'login_form': login_form})
-
-
-def logout(request):
-    if request.session.get('user_id'):
-        del (request.session['user_id'])  # remove Key & Value in dict
-    return redirect('/')
-
-
-def home(request):
-    if 'user_id' in request.session:  # request.session dictionary > Key Check
-        user_id = request.session['user_id']
-        user_vo = CommunityUser.objects.get(pk=user_id)
-        return render(request, 'board.html', {'user_name': user_vo.user_name})
-    else:
-        return render(request, 'board.html')
