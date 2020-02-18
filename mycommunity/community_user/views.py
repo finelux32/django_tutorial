@@ -12,6 +12,16 @@ from rest_framework import mixins
 from .serializers import CommunityUserSerializer
 
 
+class CommunityUserDetailAPI(generics.GenericAPIView, mixins.RetrieveModelMixin):
+    serializer_class = CommunityUserSerializer
+
+    def get_queryset(self):
+        return CommunityUser.objects.all().order_by('id')
+
+    def get(self, request, *args, **kwargs):
+        return self.retrieve(request, *args, **kwargs)
+
+
 class CommunityUserListAPI(generics.GenericAPIView, mixins.ListModelMixin):
     serializer_class = CommunityUserSerializer
 
