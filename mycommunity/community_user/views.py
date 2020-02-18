@@ -5,6 +5,22 @@ from django.shortcuts import render, redirect
 from .forms import LoginForm
 from .models import CommunityUser
 
+# for GenericAPIView, ListModelMixin
+from rest_framework import generics
+from rest_framework import mixins
+
+from .serializers import CommunityUserSerializer
+
+
+class CommunityUserListAPI(generics.GenericAPIView, mixins.ListModelMixin):
+    serializer_class = CommunityUserSerializer
+
+    def get_queryset(self):
+        return CommunityUser.objects.all().order_by('id')
+
+    def get(self, request, *args, **kwargs):
+        return self.list(request, *args, **kwargs)
+
 
 def login(request):
     login_form = None

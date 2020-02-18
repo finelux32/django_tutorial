@@ -22,5 +22,4 @@ urlpatterns = [
     path('community_user/', include('community_user.urls')),
     path('board/', include('board.urls')),
     path('', views.home),
-
 ]
