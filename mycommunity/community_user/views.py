@@ -2,6 +2,9 @@ from django.contrib.auth.hashers import make_password, check_password
 from django.shortcuts import render, redirect
 
 # Create your views here.
+from django.utils.decorators import method_decorator
+
+from .decorators import login_check
 from .forms import LoginForm
 from .models import CommunityUser
 
@@ -12,6 +15,7 @@ from rest_framework import mixins
 from .serializers import CommunityUserSerializer
 
 
+@method_decorator(login_check, name='dispatch')
 class CommunityUserDetailAPI(generics.GenericAPIView, mixins.RetrieveModelMixin):
     serializer_class = CommunityUserSerializer
 
@@ -22,6 +26,7 @@ class CommunityUserDetailAPI(generics.GenericAPIView, mixins.RetrieveModelMixin)
         return self.retrieve(request, *args, **kwargs)
 
 
+@method_decorator(login_check, name='dispatch')
 class CommunityUserListAPI(generics.GenericAPIView, mixins.ListModelMixin):
     serializer_class = CommunityUserSerializer
 

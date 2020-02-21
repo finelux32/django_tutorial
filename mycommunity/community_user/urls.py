@@ -9,6 +9,5 @@ urlpatterns = [
     path('logout/', views.logout),
     path('communityusers/', CommunityUserListAPI.as_view()),
     path('communityusers/<int:pk>', CommunityUserDetailAPI.as_view()),
-
 ]
 
